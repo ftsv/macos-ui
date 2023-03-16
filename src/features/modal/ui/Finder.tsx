@@ -10,7 +10,7 @@ export const Finder: FC<FinderProps> = (props) => {
   return (
     <Dialog {...props}>
       <span>
-        Hello
+        FINDER
       </span>
     </Dialog>
   )

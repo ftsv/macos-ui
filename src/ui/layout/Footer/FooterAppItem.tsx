@@ -1,33 +1,26 @@
 import { FC, useEffect, useState } from 'react'
+import { observer } from 'mobx-react'
 import { FooterAppWrapper, FooterAppElement, AppIcon } from './FooterAppItem.style'
 import { FooterIconProps } from './footer.interface'
+import { modalStore } from '@/shared/store/modal-store';
 
 const plug = '/assets/icons/apps/apple.png'
 
-export const FooterAppItem: FC<FooterIconProps> = (props) => {
-  const [loading, setLoading] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [classNamesWrapper, setClassNamesWrapper] = useState('')
+const FooterAppItemComponent: FC<FooterIconProps> = (props) => {
+    const item = modalStore.getModalById(props.id)
 
+    console.log({ item })
 
   const onOpenApp = () => {
-    if (loading) return;
-    
-    if (!open) {
-      setLoading(() => true)
-  
-      setOpen(() => true)
-  
-      setInterval(()=> {
-        setLoading(() => false)
-      }, 3000)
-    }
+    modalStore.openModal(props.id)
   }
 
   return (
-  <FooterAppWrapper className={`${open ? 'open' : ''}`} onClick={onOpenApp}>
-    <FooterAppElement className={`${loading ? 'loading' : ''}`}>
+  <FooterAppWrapper className={`${item?.status === 'open' ? 'open' : ''}`} onClick={onOpenApp}>
+    <FooterAppElement className={`${item?.status === 'loading' ? 'loading' : ''}`}>
       <AppIcon src={props.icon ?? plug} alt='' />
     </FooterAppElement>
   </FooterAppWrapper>)
 }
+
+export const FooterAppItem = observer(FooterAppItemComponent)

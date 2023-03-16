@@ -11,6 +11,8 @@ const roboto = Roboto({
   subsets: ['latin'],
 })
 
+if (!new class { x: unknown }().hasOwnProperty('x')) throw new Error('Transpiler is not configured correctly');
+
 export default function App({ Component, pageProps }: AppProps) {
   return <div className={roboto.className}>
   <Component {...pageProps} />
