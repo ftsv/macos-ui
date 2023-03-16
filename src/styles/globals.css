@@ -1,4 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
 :root {
+  --app-gap: 24px;
+  --header-color: #f0ffff6d;
+  --header-context: #f0ffff8d;
+  --header-height: 24px;
+  --footer-app-bounce: -10%;
+  --footer-icon: 48px;
+  --footer-icon-medium: calc(var(--footer-icon) * 1.25);
+  --footer-icon-large: calc(var(--footer-icon) * 1.5);
+  --footer-icon-xl: calc(var(--footer-icon) * 1.75);
+  --footer-height: 64px;
+  --width-ipad: 768px;
+}
+
+/* :root {
   --max-width: 1100px;
   --border-radius: 12px;
   --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
@@ -104,4 +128,4 @@ a {
   html {
     color-scheme: dark;
   }
-}
+} */
