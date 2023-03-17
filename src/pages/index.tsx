@@ -13,6 +13,8 @@ const PageWrapper = styled.div`
   min-width: var(--width-ipad);
   height: 100vh;
   background: transparent;
+  overflow: hidden;
+
   &:before {
     z-index: -5;
     content: '';
@@ -78,10 +80,10 @@ const Home = observer(() => {
       <Header />
       <Desktop />
       <Footer />
-      </PageWrapper>
       {modalStore.modal.map((item) => (
         <item.Component {...item.props} open key={item.key} />
       ))}
+      </PageWrapper>
     </>
   )
 })

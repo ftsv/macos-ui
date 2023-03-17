@@ -3,14 +3,20 @@ export const resize = (resizableElement: HTMLElement) => {
     let width = parseInt(styles.width);
     let height = parseInt(styles.height);
 
-    let xCord = 0;
-    let yCord = 0;
+    let xCoord = 0;
+    let yCoord = 0;
+
+    const minHeight = 100;
+    const minWidth = 100;
   
     // Top
     const onMouseMoveTopResize = (event: MouseEvent) => {
-      const dy = event.clientY - yCord;
+      const dy = event.clientY - yCoord;
       height = height - dy;
-      yCord = event.clientY;
+      yCoord = event.clientY;
+
+      if (height < minHeight) return ;
+
       resizableElement.style.height = height + 'px';   
     }
 
@@ -19,7 +25,7 @@ export const resize = (resizableElement: HTMLElement) => {
     }
 
     const onMouseDownTopResize = (event: MouseEvent) => {
-      yCord = event.clientY;
+      yCoord = event.clientY;
       const styles = window.getComputedStyle(resizableElement);
 
       resizableElement.style.bottom = styles.bottom;
@@ -28,14 +34,17 @@ export const resize = (resizableElement: HTMLElement) => {
       document.addEventListener("mousemove", onMouseMoveTopResize);
       document.addEventListener("mouseup", onMouseUpTopResize);
 
-      console.log("onMouseDownTopResize", { yCord, top: styles.bottom});
+      console.log("onMouseDownTopResize", { yCoord, top: styles.bottom});
     }
 
     // Bottom
     const onMouseMoveBottomResize = (event: MouseEvent) => {
-      const dy = event.clientY - yCord;
-      height += dy;
-      yCord = event.clientY;
+      const dy = event.clientY - yCoord;
+      height = height + dy;
+      yCoord = event.clientY;
+
+      if (height < minHeight) return ;
+
       resizableElement.style.height = height + 'px';   
     }
 
@@ -44,7 +53,7 @@ export const resize = (resizableElement: HTMLElement) => {
     }
 
     const onMouseDownBottomResize = (event: MouseEvent) => {
-      yCord = event.clientY;
+      yCoord = event.clientY;
       const styles = window.getComputedStyle(resizableElement);
 
       resizableElement.style.top = styles.top;
@@ -56,9 +65,12 @@ export const resize = (resizableElement: HTMLElement) => {
 
     //Left
     const onMouseMoveLeftResize = (event: MouseEvent) => {
-      const dx = event.clientX - xCord;
+      const dx = event.clientX - xCoord;
       width = width - dx;
-      xCord = event.clientX;
+      xCoord = event.clientX;
+
+      if (width < minWidth) return ;
+
       resizableElement.style.width = width + 'px';   
     }
 
@@ -67,7 +79,7 @@ export const resize = (resizableElement: HTMLElement) => {
     }
 
     const onMouseDownLeftResize = (event: MouseEvent) => {
-      xCord = event.clientX
+      xCoord = event.clientX
       const styles = window.getComputedStyle(resizableElement);
       console.log('left ->', styles.left,'right ->', styles.right)
 
@@ -82,9 +94,12 @@ export const resize = (resizableElement: HTMLElement) => {
     
     //Right
     const onMouseMoveRightResize = (event: MouseEvent) => {
-      const dx = event.clientX - xCord;
+      const dx = event.clientX - xCoord;
       width = width + dx;
-      xCord = event.clientX;
+      xCoord = event.clientX;
+      
+      if (width < minWidth) return ;
+
       resizableElement.style.width = width + 'px';   
     }
 
@@ -93,7 +108,7 @@ export const resize = (resizableElement: HTMLElement) => {
     }
 
     const onMouseDownRightResize = (event: MouseEvent) => {
-      xCord = event.clientX
+      xCoord = event.clientX
       const styles = window.getComputedStyle(resizableElement);
 
       resizableElement.style.left = styles.left;

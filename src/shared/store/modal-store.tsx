@@ -13,18 +13,38 @@ interface Modal {
   props: { [key: string]: any };
 }
 
+export interface WidowCoords {
+  zIndex: string
+  top: string
+  right: string
+  bottom: string
+  left: string
+  width: string
+  height: string
+  minWidth: string
+  minHeight: string
+}
+
+interface WindowPosition {
+  normal: WidowCoords
+}
+
+type WindowCurrentPosition = keyof WindowPosition | 'full'
+
+interface Dialog {
+  component: FunctionComponent<any>,
+  status: 'close' | 'loading' | 'open' | 'failure'
+  position: WindowPosition
+  currentPosition: WindowCurrentPosition
+}
+
+type ModalComponents = Map<string, Dialog>
 export interface Modals {
   addModal(key: string, modal: FunctionComponent<any>): void;
   openModal(key: string, props?: { [key: string]: any }): void;
   closeModal(key?: string): void;
+  updateModalPosition(key: string,type: keyof WindowPosition, position: Partial<WidowCoords>):void;
 }
-
-interface Dialog {
-  component: FunctionComponent<any>,
-  status: 'close' | 'loading' | 'open' | 'failure' 
-}
-
-type ModalComponents = Map<string, Dialog>
 
 export class ModalStore {
   modal: Modal[] = []
@@ -110,6 +130,23 @@ export class ModalStore {
     }
   };
 
+  updateModalPosition: Modals['updateModalPosition'] = (key, type, position) => {
+    const currentModal = this.modals.get(key)
+
+    if (!currentModal) return ;
+
+    this.modals.set(key, {
+      ...currentModal,
+      position: {
+        ...currentModal.position,
+       [type]: {
+        ...currentModal.position[type],
+        ...position,
+       },
+      },
+    })
+  }
+
   getModalById = (id: string) => {
     return this.modals.get(id) ?? null;
   }
@@ -126,7 +163,21 @@ export class ModalStore {
 const initialModals: ModalComponents = new Map([
   ['finder', {
     component: Finder,
-    status: 'close'
+    status: 'close',
+    position: {
+      normal: {
+        top: '20%',
+        right: '',
+        bottom: '',
+        left: '10%',
+        width: '30%',
+        height: '40%',
+        zIndex: '1000',
+        minWidth: '200',
+        minHeight: '200',
+      }
+    },
+    currentPosition: 'normal'
   }]
 ])
 

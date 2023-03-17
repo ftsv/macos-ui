@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { DialogProps, DialogWrapperProps } from '../modal.type'
 import { modalStore } from '@/shared/store/modal-store';
 import { resize } from '../lib/util/resize'
+import { getPropsFromStyle } from '../lib/util/getPropsFromStyle';
 
 const DialogWrapper = styled.div<DialogWrapperProps>`
   z-index: 1000;
@@ -50,7 +51,7 @@ const ResizeLeftElement = styled.div`
 `
 
 const DialogElement: FC<DialogProps> = (props) => {
-  console.log({props})
+  const item = modalStore.getModalById(props.id)
 
   const refDialog = useRef<HTMLDivElement>(null);
 
@@ -60,6 +61,14 @@ const DialogElement: FC<DialogProps> = (props) => {
   const refLeft = useRef<HTMLDivElement>(null);
 
   const onClose = () => {
+    const styles = refDialog.current && window.getComputedStyle(refDialog.current);
+
+    const coords = getPropsFromStyle(['zIndex', 'top', 'right', 'bottom', 'left', 'width', 'height'], styles)
+
+    if (coords) {
+      modalStore.updateModalPosition(props.id, 'normal', coords)
+    }
+
     modalStore.closeModal(props.id);
   }
 
@@ -70,6 +79,8 @@ const DialogElement: FC<DialogProps> = (props) => {
 
     const styles = window.getComputedStyle(resizableElement);
 
+    resizableElement.style.zIndex = '1001'
+
     console.log({ styles })
   }
 
@@ -78,10 +89,17 @@ const DialogElement: FC<DialogProps> = (props) => {
 
     if (!resizableElement) return;
 
-    resizableElement.style.top = "150px";
-    resizableElement.style.left = "150px";
-    resizableElement.style.width = "150px";
-    resizableElement.style.height = "150px";
+    if (item && item.currentPosition !== 'full' && typeof item.currentPosition === 'string') {
+      const { zIndex, top, right, bottom, left, width, height} = item.position[item.currentPosition]
+      resizableElement.style.zIndex = zIndex;
+      resizableElement.style.top = top;
+      resizableElement.style.right = right;
+      resizableElement.style.bottom = bottom;
+      resizableElement.style.left = left;
+      resizableElement.style.width = width;
+      resizableElement.style.height =height;
+    }
+
 
     const {
       onMouseDownTopResize,
@@ -114,7 +132,7 @@ const DialogElement: FC<DialogProps> = (props) => {
   }, [])
 
   return (
-    <DialogWrapper ref={refDialog} open {...props}  onClick={onClick}>
+    <DialogWrapper ref={refDialog} {...props}  onClick={onClick}>
       <button onClick={onClose}> close</button>
       {props.children}
       <ResizeTopElement ref={refTop} />
