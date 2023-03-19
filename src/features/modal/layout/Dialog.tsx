@@ -6,13 +6,30 @@ import { modalStore } from '@/shared/store/modal-store';
 import { resize } from '../lib/util/resize'
 import { getPropsFromStyle } from '../lib/util/getPropsFromStyle';
 
+const headerHeight = '30px'
+
 const DialogWrapper = styled.div<DialogWrapperProps>`
   z-index: 1000;
   position: absolute;
   border: 1px solid black;
   border-radius: 6px;
   background-color: #f0ffff6d;
+  padding-top: ${headerHeight};
+  overflow: hidden;
+  border-radius: 6px;
   `
+
+const DialogHeader = styled.div`
+  position: absolute;
+  height: ${headerHeight};
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  background-color: #f0ffff6d;
+`
 
 const ResizeTopElement = styled.div`
   cursor: n-resize;
@@ -54,7 +71,7 @@ const DialogElement: FC<DialogProps> = (props) => {
   const item = modalStore.getModalById(props.id)
 
   const refDialog = useRef<HTMLDivElement>(null);
-
+  const refHeader = useRef<HTMLDivElement>(null);
   const refTop = useRef<HTMLDivElement>(null);
   const refRight = useRef<HTMLDivElement>(null);
   const refBottom = useRef<HTMLDivElement>(null);
@@ -100,15 +117,13 @@ const DialogElement: FC<DialogProps> = (props) => {
       resizableElement.style.height =height;
     }
 
-
     const {
       onMouseDownTopResize,
       onMouseDownRightResize,
       onMouseDownBottomResize,
       onMouseDownLeftResize,
+      onMouseDown,
     } = resize(resizableElement);
-
-
 
     // Mouse Down event listener
     const resizerTop = refTop.current;
@@ -123,17 +138,23 @@ const DialogElement: FC<DialogProps> = (props) => {
     const resizerLeft = refLeft.current;
     resizerLeft?.addEventListener("mousedown", onMouseDownLeftResize);
 
+    const moveHeader = refHeader.current;
+    moveHeader?.addEventListener("mousedown", onMouseDown);
+
     return () => {
       resizerTop?.removeEventListener("mousedown", onMouseDownTopResize);
       resizerRight?.removeEventListener("mousedown", onMouseDownRightResize);
       resizerBottom?.removeEventListener("mousedown", onMouseDownBottomResize);
       resizerLeft?.removeEventListener("mousedown", onMouseDownLeftResize);
+      moveHeader?.removeEventListener("mousedown", onMouseDown);
     }
   }, [])
 
   return (
     <DialogWrapper ref={refDialog} {...props}  onClick={onClick}>
-      <button onClick={onClose}> close</button>
+      <DialogHeader ref={refHeader}>
+        <button onClick={onClose}> close</button>
+      </DialogHeader>
       {props.children}
       <ResizeTopElement ref={refTop} />
       <ResizeRightElement ref={refRight} />
