@@ -29,13 +29,15 @@ interface WindowPosition {
   normal: WidowCoords
 }
 
-type WindowCurrentPosition = keyof WindowPosition | 'full'
+type WindowCurrentPosition = keyof WindowPosition | 'full' | 'tray'
 
 interface Dialog {
   component: FunctionComponent<any>,
   status: 'close' | 'loading' | 'open' | 'failure'
   position: WindowPosition
   currentPosition: WindowCurrentPosition
+  trayElement?: HTMLElement
+  dialogElement?: HTMLElement
 }
 
 type ModalComponents = Map<string, Dialog>
@@ -50,6 +52,7 @@ export class ModalStore {
   modal: Modal[] = []
   private modals: ModalComponents
   private modalKeys = new Set<string>()
+  private timerCollapse?: ReturnType<typeof setTimeout> ;
 
   constructor(modals: ModalComponents) {
     makeAutoObservable(this);
@@ -119,21 +122,40 @@ export class ModalStore {
         this.modals.set(key, {
           ...currentModal,
           status: 'close',
+          dialogElement: undefined,
         })
     } catch (e) {
-      if (!currentModal) return;
-
-        this.modals.set(key, {
-          ...currentModal,
-          status: 'close',
-        })
+      console.error({ e });
     }
-  };
+  }
+
+  collapseModal = (key: string) => {
+    const element = this.getModalById(key);
+ 
+    if (!element?.trayElement) return;
+
+    if (!element.dialogElement) return this.openModal(key);
+
+    if (element.dialogElement.classList.contains('collapse')) {
+      element.currentPosition = 'normal';
+      if (this.timerCollapse) {
+        clearTimeout(this.timerCollapse);
+      }
+      element.dialogElement?.classList.remove('collapsed');
+    } else {
+      element.currentPosition = 'tray';
+      this.timerCollapse = setTimeout(() => {
+        element.dialogElement?.classList.add('collapsed');
+      }, 200)
+    }
+    
+    element.dialogElement.classList.toggle('collapse');
+  }
 
   updateModalPosition: Modals['updateModalPosition'] = (key, type, position) => {
     const currentModal = this.modals.get(key)
 
-    if (!currentModal) return ;
+    if (!currentModal || currentModal.trayElement) return ;
 
     this.modals.set(key, {
       ...currentModal,
@@ -157,6 +179,28 @@ export class ModalStore {
     this.modals.forEach((value) => {
       value.status = 'close'
     } )
+  }
+  
+  setDialogElement = (key: string, dialogElement: HTMLElement | null) => {
+    const currentModal = this.modals.get(key)
+
+    if (!currentModal || dialogElement === null) return ;
+
+    this.modals.set(key, {
+      ...currentModal,
+      dialogElement,
+    })
+  }
+  
+  setTrayElement = (key: string, trayElement: HTMLElement | null) => {
+    const currentModal = this.modals.get(key)
+
+    if (!currentModal || trayElement === null) return ;
+
+    this.modals.set(key, {
+      ...currentModal,
+      trayElement,
+    })
   }
 }
 

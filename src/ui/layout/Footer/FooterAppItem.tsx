@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react'
 import { FooterAppWrapper, FooterAppElement, AppIcon } from './FooterAppItem.style'
 import { FooterIconProps } from './footer.interface'
@@ -9,14 +9,19 @@ const plug = '/assets/icons/apps/apple.png'
 const FooterAppItemComponent: FC<FooterIconProps> = (props) => {
     const item = modalStore.getModalById(props.id)
 
-    console.log({ item })
+  const itemRef = useRef<HTMLLIElement>(null)
 
   const onOpenApp = () => {
-    modalStore.openModal(props.id)
+    modalStore.collapseModal(props.id)
   }
 
+  useEffect(() => {
+    if (!itemRef.current) return;
+    modalStore.setTrayElement(props.id, itemRef.current);
+  }, [props.id])
+
   return (
-  <FooterAppWrapper className={`${item?.status === 'open' ? 'open' : ''}`} onClick={onOpenApp}>
+  <FooterAppWrapper ref={itemRef} className={`${item?.status === 'open' || item?.status === 'tray' ? 'open' : ''}`} onClick={onOpenApp}>
     <FooterAppElement className={`${item?.status === 'loading' ? 'loading' : ''}`}>
       <AppIcon src={props.icon ?? plug} alt='' />
     </FooterAppElement>

@@ -17,6 +17,14 @@ const DialogWrapper = styled.div<DialogWrapperProps>`
   padding-top: ${headerHeight};
   overflow: hidden;
   border-radius: 6px;
+  transition: opacity 200ms ease-in-out 0ms, display 300ms ease 1s;
+
+  &.collapse {
+    opacity: 0;
+  }
+  &.collapsed {
+    display: none;
+  }
   `
 
 const DialogHeader = styled.div`
@@ -68,25 +76,33 @@ const ResizeLeftElement = styled.div`
 `
 
 const DialogElement: FC<DialogProps> = (props) => {
-  const item = modalStore.getModalById(props.id)
-
   const refDialog = useRef<HTMLDivElement>(null);
   const refHeader = useRef<HTMLDivElement>(null);
   const refTop = useRef<HTMLDivElement>(null);
   const refRight = useRef<HTMLDivElement>(null);
   const refBottom = useRef<HTMLDivElement>(null);
   const refLeft = useRef<HTMLDivElement>(null);
+  
+  const item = modalStore.getModalById(props.id);
 
   const onClose = () => {
     const styles = refDialog.current && window.getComputedStyle(refDialog.current);
 
-    const coords = getPropsFromStyle(['zIndex', 'top', 'right', 'bottom', 'left', 'width', 'height'], styles)
+    const coords = getPropsFromStyle(['zIndex', 'top', 'right', 'bottom', 'left', 'width', 'height'], styles);
 
     if (coords) {
-      modalStore.updateModalPosition(props.id, 'normal', coords)
+      modalStore.updateModalPosition(props.id, 'normal', coords);
     }
 
     modalStore.closeModal(props.id);
+  }
+
+  const onCollapse = () => {
+    const dialog = refDialog.current
+
+    if (!dialog) return;
+
+    modalStore.collapseModal(props.id);
   }
 
   const onClick = () => {
@@ -96,7 +112,7 @@ const DialogElement: FC<DialogProps> = (props) => {
 
     const styles = window.getComputedStyle(resizableElement);
 
-    resizableElement.style.zIndex = '1001'
+    resizableElement.style.zIndex = '1001';
 
     console.log({ styles })
   }
@@ -150,10 +166,15 @@ const DialogElement: FC<DialogProps> = (props) => {
     }
   }, [])
 
+  useEffect(() => {
+    modalStore.setDialogElement(props.id, refDialog.current);
+  }, [props.id])
+
   return (
     <DialogWrapper ref={refDialog} {...props}  onClick={onClick}>
       <DialogHeader ref={refHeader}>
         <button onClick={onClose}> close</button>
+        <button onClick={onCollapse}> collapse</button>
       </DialogHeader>
       {props.children}
       <ResizeTopElement ref={refTop} />
